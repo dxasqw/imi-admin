@@ -342,15 +342,11 @@ trait Service
         if ($search) {
             $searchCloumn = method_exists($this->model, 'getSearchColumns') ? $this->model::getSearchColumns() : [];
             $orWhere = [];
-            foreach ($searchCloumn as $k => $column) {
-                if (!in_array($column, $columns)) {
-                    continue;
-                }
-                if ($k == 0) {
-                    $orWhere[$column] = ['like', '%' . $search . '%'];
+            foreach (array_reverse($searchCloumn) as $key => $param) {
+                if ($key == 0) {
+                    $orWhere = [$param => ['like', '%' . $search . '%']];
                 } else {
-                    !isset($orWhere['or']) && $orWhere['or'] = [];
-                    $orWhere['or'][$column] = ['like', '%' . $search . '%'];
+                    $orWhere = [$param => ['like', '%' . $search . '%'], 'or' => $orWhere];
                 }
             }
             $orWhere && $query = $query->whereEx($orWhere);
